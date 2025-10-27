@@ -4,7 +4,6 @@ using Catalog.Application.Queries;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
-using System.Reflection;
 
 namespace Catalog.API
 {
@@ -44,8 +43,8 @@ namespace Catalog.API
             // Register Application Services
             builder.Services.AddScoped<ICatalogContext, CatalogContext>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ITypeRepository, ProductRepository>();
-            builder.Services.AddScoped<IBrandRepository, ProductRepository>();
+            builder.Services.AddScoped<ITypeRepository, TypeRepository>();
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 
             var app = builder.Build();
 
