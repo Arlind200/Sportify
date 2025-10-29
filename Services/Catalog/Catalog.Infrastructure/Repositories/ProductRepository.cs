@@ -1,4 +1,5 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.Application.Sorting;
+using Catalog.Core.Entities;
 using Catalog.Core.Repositories;
 using Catalog.Core.Specs;
 using Catalog.Infrastructure.Data;
@@ -9,10 +10,14 @@ public class ProductRepository : IProductRepository, IBrandRepository, ITypeRepo
 {
     private readonly ICatalogContext _context;
 
-    public ProductRepository(ICatalogContext context)
+    public ISortStrategyFactory _sortStrategyFactory;
+
+    public ProductRepository(ICatalogContext context, ISortStrategyFactory sortStrategyFactory)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
+        ArgumentNullException.ThrowIfNull(sortStrategyFactory, nameof(sortStrategyFactory));
         _context = context;
+        _sortStrategyFactory = sortStrategyFactory;
     }
 
     public async Task<Pagination<Product>> GetProducts(CatalogSpecParams catalogSpecParams)
@@ -49,24 +54,10 @@ public class ProductRepository : IProductRepository, IBrandRepository, ITypeRepo
 
     private async Task<IReadOnlyList<Product>> DataFilter(CatalogSpecParams catalogSpecParams, FilterDefinition<Product> filter)
     {
-        var sortDefinition = Builders<Product>.Sort.Ascending("Name");
+        var sortBuilder = Builders<Product>.Sort;
+        var strategy = _sortStrategyFactory.GetStrategy(catalogSpecParams.Sort ?? "name");
 
-        if (!string.IsNullOrEmpty(catalogSpecParams.Sort))
-        {
-            switch (catalogSpecParams.Sort)
-            {
-                case "priceAsc":
-                    sortDefinition = Builders<Product>.Sort.Ascending(p => p.Price);
-                    break;
-                case "priceDesc":
-                    sortDefinition = Builders<Product>.Sort.Descending(p => p.Price);
-                    break;
-                default:
-                    sortDefinition = Builders<Product>.Sort.Ascending(p => p.Name);
-                    break;
-            }
-
-        }
+        var sortDefinition = strategy.ApplySort(sortBuilder);
 
         return await _context
                 .Products
