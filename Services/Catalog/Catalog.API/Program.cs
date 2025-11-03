@@ -1,11 +1,5 @@
 
 using Catalog.API.Extensions;
-using Catalog.Application.Mappers;
-using Catalog.Application.Queries;
-using Catalog.Application.Sorting;
-using Catalog.Core.Repositories;
-using Catalog.Infrastructure.Data;
-using Catalog.Infrastructure.Repositories;
 
 namespace Catalog.API
 {

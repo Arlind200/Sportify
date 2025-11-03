@@ -1,6 +1,4 @@
-﻿using Catalog.Core.Entities;
-
-namespace Catalog.Application.Responses;
+﻿namespace Catalog.Application.Responses;
 public class ProductResponse
 {
     public string Id { get; set; }

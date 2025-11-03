@@ -1,7 +1,6 @@
 ﻿using Catalog.Application.Mappers;
 using Catalog.Application.Queries;
 using Catalog.Application.Sorting;
-using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
 
@@ -49,13 +48,13 @@ namespace Catalog.API.Extensions
         public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c => 
+            services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
-                { 
-                    Title = "Catalog.API", 
-                    Version = "v1" 
-                }); 
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "Catalog.API",
+                    Version = "v1"
+                });
             });
 
 

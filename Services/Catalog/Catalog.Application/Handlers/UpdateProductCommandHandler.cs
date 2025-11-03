@@ -1,6 +1,4 @@
 ﻿using Catalog.Application.Commands;
-using Catalog.Core.Entities;
-using Catalog.Core.Repositories;
 using MediatR;
 
 namespace Catalog.Application.Handlers;

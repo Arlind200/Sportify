@@ -1,9 +1,4 @@
-﻿using Catalog.Application.Sorting;
-using Catalog.Core.Entities;
-using Catalog.Core.Repositories;
-using Catalog.Core.Specs;
-using Catalog.Infrastructure.Data;
-using MongoDB.Bson;
+﻿using Catalog.Infrastructure.Data;
 using MongoDB.Driver;
 
 namespace Catalog.Infrastructure.Repositories;
@@ -11,81 +6,18 @@ public class ProductRepository : IProductRepository, IBrandRepository, ITypeRepo
 {
     private readonly ICatalogContext _context;
 
-    public ISortStrategyFactory _sortStrategyFactory;
-
-    private static readonly Collation _caseInsensitiveCollation =
-        new("en", strength: CollationStrength.Secondary);
-
-    public ProductRepository(ICatalogContext context, ISortStrategyFactory sortStrategyFactory)
+    public ProductRepository(ICatalogContext context)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
-        ArgumentNullException.ThrowIfNull(sortStrategyFactory, nameof(sortStrategyFactory));
         _context = context;
-        _sortStrategyFactory = sortStrategyFactory;
     }
 
-    public async Task<Pagination<Product>> GetProducts(CatalogSpecParams catalogSpecParams)
+    public async Task<IEnumerable<Product>> GetProducts()
     {
-        var builder = Builders<Product>.Filter;
-        var filter = builder.Empty;
-
-        if (!string.IsNullOrEmpty(catalogSpecParams.Search))
-        {
-            //filter = filter & builder.Where(p => p.Name.ToLower().Contains(catalogSpecParams.Search.ToLower()));
-            //flexible substring search (case insensitive)
-            var re = new BsonRegularExpression(catalogSpecParams.Search, "i");
-            filter &= builder.Regex(p => p.Name, re);
-        }
-        if (!string.IsNullOrEmpty(catalogSpecParams.BrandId))
-        {
-
-            filter &= builder.Eq(p => p.Brand.Id, catalogSpecParams.BrandId);
-        
-        }
-        if (!string.IsNullOrEmpty(catalogSpecParams.TypeId))
-        {
-
-            filter &= builder.Eq(p => p.Brand.Id, catalogSpecParams.TypeId); 
-        
-        }
-
-        var countOptions = new CountOptions
-        {
-            Collation = _caseInsensitiveCollation
-        };
-
-        var totalItems = await _context.Products.CountDocumentsAsync(filter, countOptions);
-        var data = await DataFilter(catalogSpecParams, filter);
-
-        return new Pagination<Product>(
-            catalogSpecParams.PageIndex,
-            catalogSpecParams.PageSize,
-            (int)totalItems,
-            data);
-    }
-
-    private async Task<IReadOnlyList<Product>> DataFilter(CatalogSpecParams catalogSpecParams, FilterDefinition<Product> filter)
-    {
-        var sortBuilder = Builders<Product>.Sort;
-        var strategy = _sortStrategyFactory.GetStrategy(catalogSpecParams.Sort ?? "name");
-
-        var sortDefinition = strategy.ApplySort(sortBuilder);
-
-        var aggregateOptions = new AggregateOptions
-        {
-            Collation = _caseInsensitiveCollation
-        };
-
-        var query = _context
+        return await _context
             .Products
-            .Aggregate(aggregateOptions)
-            .Match(filter)
-            .Sort(sortDefinition)
-            .Skip(catalogSpecParams.PageSize * (catalogSpecParams.PageIndex - 1))
-            .Limit(catalogSpecParams.PageSize);
-
-        return await query.ToListAsync();
-           
+            .Find(p => true)
+            .ToListAsync();
     }
 
     public async Task<Product> GetProduct(string id)
@@ -98,30 +30,17 @@ public class ProductRepository : IProductRepository, IBrandRepository, ITypeRepo
 
     public async Task<IEnumerable<Product>> GetProductsByBrand(string brandName)
     {
-        var filter = Builders<Product>.Filter.Eq(p => p.Brand.Name, brandName);
-        var option = new FindOptions<Product>
-        {
-            Collation = _caseInsensitiveCollation
-        };
-
-       using var cursor = await _context.Products.FindAsync(filter, option);
-
-        return await cursor.ToListAsync();
-        //Find does not accept options, FindAsync does but we have to set it as Cursor then return it as list
-
+        return await _context
+            .Products.Find(p => p.Brand.Name.ToLower() == brandName.ToLower())
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Product>> GetProductsByName(string name)
     {
-        var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
-        var option = new FindOptions<Product>
-        {
-            Collation = _caseInsensitiveCollation
-        };
-
-        using var cursor = await _context.Products.FindAsync(filter, option);
-        return await cursor.ToListAsync();
-
+        return await _context
+            .Products
+            .Find(p => p.Name.ToLower() == name.ToLower())
+            .ToListAsync();
     }
 
     public async Task<Product> CreateProduct(Product product)

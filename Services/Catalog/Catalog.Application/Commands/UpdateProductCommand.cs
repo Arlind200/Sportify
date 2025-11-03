@@ -1,5 +1,4 @@
-﻿using Catalog.Core.Entities;
-using MediatR;
+﻿using MediatR;
 
 namespace Catalog.Application.Commands;
 public class UpdateProductCommand : IRequest<bool>

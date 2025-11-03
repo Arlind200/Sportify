@@ -1,5 +1,4 @@
-﻿using Catalog.Core.Entities;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 namespace Catalog.Application.Sorting;
 
