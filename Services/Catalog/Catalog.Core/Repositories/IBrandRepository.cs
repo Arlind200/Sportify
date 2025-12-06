@@ -1,7 +1,9 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.CORE.Entities;
 
-namespace Catalog.Core.Repositories;
-public interface IBrandRepository
+namespace Catalog.CORE.Repositories
 {
-    Task<IEnumerable<ProductBrand>> GetAllBrands();
+    public interface IBrandRepository
+    {
+        Task<IEnumerable<ProductBrand>> GetAllBrands();
+    }
 }

@@ -1,24 +1,24 @@
 ﻿using Catalog.Application.Mappers;
 using Catalog.Application.Queries;
 using Catalog.Application.Responses;
-using Catalog.Core.Repositories;
+using Catalog.CORE.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Handlers;
-public class GetAllTypesHandler : IRequestHandler<GetAllTypesQuery, IList<TypeResponse>>
+namespace Catalog.Application.Handlers
 {
-    private readonly ITypeRepository _typeRepository;
-
-    public GetAllTypesHandler(ITypeRepository typeRepository)
+    public class GetAllTypesHandler : IRequestHandler<GetAllTypesQuery, IList<TypeResponse>>
     {
-        _typeRepository = typeRepository;
-    }
+        private readonly ITypeRepository _typesRepository;
+        public GetAllTypesHandler(ITypeRepository typesRepository)
+        {
+            _typesRepository = typesRepository;
+        }
+        public async Task<IList<TypeResponse>> Handle(GetAllTypesQuery request, CancellationToken cancellationToken)
+        {
+            var typeList = await _typesRepository.GetAllTypes();
+            var typeResponseList = ProductMapper.Mapper.Map<IList<TypeResponse>>(typeList);
 
-    public async Task<IList<TypeResponse>> Handle(GetAllTypesQuery request, CancellationToken cancellationToken)
-    {
-        var typeList = await _typeRepository.GetAllTypes();
-        var typeResponseList = ProductMapper.Mapper.Map<IList<TypeResponse>>(typeList);
-
-        return typeResponseList;
+            return typeResponseList;
+        }
     }
 }

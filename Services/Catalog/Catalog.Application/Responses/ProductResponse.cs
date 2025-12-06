@@ -1,6 +1,8 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.CORE.Entities;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Catalog.Application.Responses;
+
 public class ProductResponse
 {
     public string Id { get; set; }
@@ -9,6 +11,8 @@ public class ProductResponse
     public string Description { get; set; }
     public string ImageFile { get; set; }
     public ProductBrand Brand { get; set; }
-    public ProductType Type { get; set; }
+    public ProductType MyProperty { get; set; }
+
+    [BsonRepresentation(MongoDB.Bson.BsonType.Decimal128)]
     public decimal Price { get; set; }
 }

@@ -1,12 +1,12 @@
-﻿using Catalog.Application.Responses;
-using MediatR;
-
-namespace Catalog.Application.Queries;
-public class GetProductByIdQuery : IRequest<ProductResponse>
+﻿namespace Catalog.Application.Queries
 {
-    public string Id { get; init; }
-    public GetProductByIdQuery(string id)
+    public class GetProductByIdQuery
     {
-        Id = id;
+        public string Id { get; set; }
+
+        public GetProductByIdQuery(string id)
+        {
+            Id = id;
+        }
     }
 }

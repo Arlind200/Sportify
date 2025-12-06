@@ -1,19 +1,21 @@
 ﻿using AutoMapper;
 
-namespace Catalog.Application.Mappers;
-public class ProductMapper
+namespace Catalog.Application.Mappers
 {
-    private static readonly Lazy<IMapper> Lazy = new Lazy<IMapper>(() =>
+    public class ProductMapper
     {
-        var config = new MapperConfiguration(cfg =>
+        private static readonly Lazy<IMapper> Lazy = new Lazy<IMapper>(() =>
         {
-            cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
-            cfg.AddProfile<ProductMappingProfile>();
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.ShouldMapProperty = p => p.GetMethod.IsPublic || p.GetMethod.IsAssembly;
+                cfg.AddProfile<ProductMappingProfile>();
+
+            });
+            var mapepr = config.CreateMapper();
+            return mapepr;
         });
 
-        var mapper = config.CreateMapper();
-        return mapper;
-    });
-
-    public static IMapper Mapper => Lazy.Value;
+        public static IMapper Mapper => Lazy.Value;
+    }
 }

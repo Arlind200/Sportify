@@ -1,32 +1,34 @@
 ﻿using Catalog.Application.Commands;
-using Catalog.Core.Entities;
-using Catalog.Core.Repositories;
+using Catalog.CORE.Entities;
+using Catalog.CORE.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Handlers;
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, bool>
+namespace Catalog.Application.Handlers
 {
-    private readonly IProductRepository _productRepository;
-
-    public UpdateProductCommandHandler(IProductRepository productRepository)
+    internal class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, bool>
     {
-        _productRepository = productRepository;
-    }
+        private readonly IProductRepository _productRepository;
 
-    public async Task<bool> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-    {
-        var result = await _productRepository.UpdateProduct(new Product
+        public UpdateProductCommandHandler(IProductRepository productRepository)
         {
-            Id = request.Id,
-            Name = request.Name,
-            Summary = request.Summary,
-            Description = request.Description,
-            ImageFile = request.ImageFile,
-            Price = request.Price,
-            Brand = request.Brand,
-            Type = request.Type
-        });
+            _productRepository = productRepository;
+        }
+        public async Task<bool> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        {
 
-        return result;
+            var result = await _productRepository.UpdateProduct(new Product
+            {
+                Id = request.Name,
+                Name = request.Name,
+                Summary = request.Summary,
+                Description = request.Description,
+                ImageFile = request.ImageFile,
+                Price = request.Price,
+                Brand = request.Brand,
+                Type = request.Type
+
+            });
+            return result;
+        }
     }
 }

@@ -1,23 +1,25 @@
 ﻿using Catalog.Application.Mappers;
 using Catalog.Application.Queries;
 using Catalog.Application.Responses;
-using Catalog.Core.Repositories;
+using Catalog.CORE.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Handlers;
-public class GetProductsByBrandHandler : IRequestHandler<GetProductsByBrandQuery, IList<ProductResponse>>
+namespace Catalog.Application.Handlers
 {
-    private readonly IProductRepository _productRepository;
-
-    public GetProductsByBrandHandler(IProductRepository productRepository)
+    internal class GetProductsByBrandHandler : IRequestHandler<GetProductsByBrandQuery, IList<ProductResponse>>
     {
-        _productRepository = productRepository;
-    }
-    public async Task<IList<ProductResponse>> Handle(GetProductsByBrandQuery request, CancellationToken cancellationToken)
-    {
-        var productList = await _productRepository.GetProductsByBrand(request.BrandName);
-        var productResponseList = ProductMapper.Mapper.Map<IList<ProductResponse>>(productList);
+        private readonly IProductRepository _productRepository;
 
-        return productResponseList;
+        public GetProductsByBrandHandler(IProductRepository productRepository)
+        {
+            _productRepository = productRepository;
+        }
+        public async Task<IList<ProductResponse>> Handle(GetProductsByBrandQuery request, CancellationToken cancellationToken)
+        {
+            var productList = await _productRepository.GetProductsByBrand(request.BrandName);
+            var productResponseList = ProductMapper.Mapper.Map<IList<ProductResponse>>(productList);
+
+            return productResponseList;
+        }
     }
 }

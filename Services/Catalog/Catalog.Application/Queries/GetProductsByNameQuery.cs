@@ -1,12 +1,16 @@
 ﻿using Catalog.Application.Responses;
 using MediatR;
 
-namespace Catalog.Application.Queries;
-public class GetProductsByNameQuery : IRequest<IList<ProductResponse>>
+namespace Catalog.Application.Queries
 {
-    public string Name { get; init; }
-    public GetProductsByNameQuery(string name)
+    public class GetProductsByNameQuery : IRequest<IList<ProductResponse>>
+
     {
-        Name = name;
+        public string Name { get; set; }
+
+        public GetProductsByNameQuery(string name)
+        {
+            Name = name;
+        }
     }
 }

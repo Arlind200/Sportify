@@ -1,10 +1,12 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.CORE.Entities;
 using MongoDB.Driver;
 
-namespace Catalog.Infrastructure.Data;
-public interface ICatalogContext
+namespace Catalog.Infrastructure.Data
 {
-    IMongoCollection<Product> Products { get; }
-    IMongoCollection<ProductBrand> Brands { get; }
-    IMongoCollection<ProductType> Types { get; }
+    public interface ICatalogContext
+    {
+        IMongoCollection<Product> Products { get; }
+        IMongoCollection<ProductBrand> Brands { get; }
+        IMongoCollection<ProductType> Types { get; }
+    }
 }

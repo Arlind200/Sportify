@@ -1,5 +1,8 @@
-﻿namespace Catalog.Core.Entities;
-public class ProductBrand : BaseEntity
+﻿namespace Catalog.CORE.Entities
 {
-    public string Name { get; set; }
+    public class ProductBrand : BaseEntity
+    {
+        public string Name { get; set; }
+
+    }
 }

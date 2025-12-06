@@ -1,31 +1,33 @@
-﻿using Catalog.Application.Commands;
-using Catalog.Application.Mappers;
+﻿using Catalog.Application.Mappers;
 using Catalog.Application.Responses;
-using Catalog.Core.Entities;
-using Catalog.Core.Repositories;
+using Catalog.CORE.Entities;
+using Catalog.CORE.Repositories;
 using MediatR;
 
-namespace Catalog.Application.Handlers;
-public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductResponse>
+namespace Catalog.Application.Handlers
 {
-    private readonly IProductRepository _productRepository;
-
-    public CreateProductCommandHandler(IProductRepository productRepository)
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandHandler, ProductResponse>
     {
-        _productRepository = productRepository;
-    }
-    public async Task<ProductResponse> Handle(CreateProductCommand request, CancellationToken cancellationToken)
-    {
-        var productEntity = ProductMapper.Mapper.Map<Product>(request);
-
-        if (productEntity == null)
+        private IProductRepository _productRepository;
+        public CreateProductCommandHandler(IProductRepository productRepository)
         {
-            throw new ApplicationException("There is an issue with mapping while creating new product");
+            _productRepository = productRepository;
+
         }
+        public async Task<ProductResponse> Handle(CreateProductCommandHandler request, CancellationToken cancellationToken)
+        {
+            var productEntity = ProductMapper.Mapper.Map<Product>(request);
 
-        var newProduct = await _productRepository.CreateProduct(productEntity);
-        var productResponse = ProductMapper.Mapper.Map<ProductResponse>(newProduct);
+            if (productEntity == null)
+            {
+                throw new ApplicationException("There is an issue with mapping while creating a new product");
+            }
 
-        return productResponse;
+            var newProduct = await _productRepository.CreateProduct(productEntity);
+            var productResponse = ProductMapper.Mapper.Map<ProductResponse>(newProduct);
+
+            return productResponse;
+
+        }
     }
 }

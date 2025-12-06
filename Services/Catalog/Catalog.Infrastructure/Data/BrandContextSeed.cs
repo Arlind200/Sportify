@@ -1,26 +1,27 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.CORE.Entities;
 using MongoDB.Driver;
 using System.Text.Json;
 
-namespace Catalog.Infrastructure.Data;
-public static class BrandContextSeed
+namespace Catalog.Infrastructure.Data
 {
-    public static void SeedData(IMongoCollection<ProductBrand> brandCollection)
+    public class BrandContextSeed
     {
-        bool checkBrands = brandCollection.Find(b => true).Any();
-        string path = Path.Combine("Data", "SeedData", "brands.json");
-
-        if (!checkBrands)
+        public static void SeedData(IMongoCollection<ProductBrand> brandCollection)
         {
-            var brandsData = File.ReadAllText(path);
-            //var brandsData = File.ReadAllText("../Catalog.Infrastructure/Data/SeedData/brands.json");
-            var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsData);
+            bool checkBrands = brandCollection.Find(b => true).Any();
+            string path = Path.Combine("Data", "SeedData", "brands.json");
 
-            if (brands != null)
+            if (!checkBrands)
             {
-                foreach (var brand in brands)
+                var brandsData = File.ReadAllText(path);
+                var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsData);
+
+                if (brands != null)
                 {
-                    brandCollection.InsertOneAsync(brand);
+                    foreach (var brand in brands)
+                    {
+                        brandCollection.InsertOneAsync(brand);
+                    }
                 }
             }
         }

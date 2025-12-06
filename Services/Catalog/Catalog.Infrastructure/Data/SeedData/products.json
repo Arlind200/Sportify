@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "Id": "602d2149e773f2a3990b47f5",
     "Name": "Adidas Quick Force Indoor Badminton Shoes",
@@ -118,11 +118,11 @@
     "Price": 3000,
     "ImageFile": "images/products/victor_shoe-2.png",
     "Summary": "Victor SHW503 F Badminton Shoes",
-    "Type": {
+    "Types": {
       "Id": "63ca5d4bc3a8a58f47299f97",
       "Name": "Shoes"
     },
-    "Brand": {
+    "Brands": {
       "Id": "63ca5e59065163c16451bd73",
       "Name": "Victor"
     }

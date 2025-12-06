@@ -1,22 +1,23 @@
 ﻿using Catalog.Application.Mappers;
 using Catalog.Application.Queries;
 using Catalog.Application.Responses;
-using Catalog.Core.Repositories;
+using Catalog.CORE.Repositories;
 using MediatR;
 
 namespace Catalog.Application.Handlers;
-public class GetProductByNameHandler : IRequestHandler<GetProductsByNameQuery, IList<ProductResponse>>
+
+public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, IList<ProductResponse>>
 {
     private readonly IProductRepository _productRepository;
 
-    public GetProductByNameHandler(IProductRepository productRepository)
+    public GetAllProductsHandler(IProductRepository productRepository)
     {
         _productRepository = productRepository;
     }
 
-    public async Task<IList<ProductResponse>> Handle(GetProductsByNameQuery request, CancellationToken cancellationToken)
+    public async Task<IList<ProductResponse>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        var productList = await _productRepository.GetProductsByName(request.Name);
+        var productList = await _productRepository.GetAllProducts();
         var productResponseList = ProductMapper.Mapper.Map<IList<ProductResponse>>(productList);
 
         return productResponseList;

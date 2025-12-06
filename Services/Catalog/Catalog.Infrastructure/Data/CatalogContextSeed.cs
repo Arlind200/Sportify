@@ -1,27 +1,29 @@
-﻿using Catalog.Core.Entities;
+﻿using Catalog.CORE.Entities;
 using MongoDB.Driver;
 using System.Text.Json;
 
-namespace Catalog.Infrastructure.Data;
-public static class CatalogContextSeed
+namespace Catalog.Infrastructure.Data
 {
-    public static void SeedData(IMongoCollection<Product> productCollection)
+    public class CatalogContextSeed
     {
-        bool checkProducts = productCollection.Find(b => true).Any();
-        string path = Path.Combine("Data", "SeedData", "products.json");
-
-        if (!checkProducts)
+        public static void SeedData(IMongoCollection<Product> productCollection)
         {
-            var productsData = File.ReadAllText(path);
-            //var productsData = File.ReadAllText("../Catalog.Infrastructure/Data/SeedData/products.json");
-            var products = JsonSerializer.Deserialize<List<Product>>(productsData);
+            bool checkProducts = productCollection.Find(p => true).Any();
+            string path = Path.Combine("Data", "SeedData", "products.json");
 
-            if (products != null)
+            if (!checkProducts)
             {
-                foreach (var product in products)
+                var productsData = File.ReadAllText(path);
+                var products = JsonSerializer.Deserialize<List<Product>>(productsData);
+
+                if (products != null)
                 {
-                    productCollection.InsertOneAsync(product);
+                    foreach (var product in products)
+                    {
+                        productCollection.InsertOneAsync(product);
+                    }
                 }
+
             }
         }
     }
