@@ -1,0 +1,29 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Catalog.CORE.Specs
+{
+    public class Pagination<T> where T : class
+    {
+        public int PageIndex { get; }
+        public int PageSize { get; }
+        public int Count { get; }
+        public IReadOnlyList<T> Data { get; }
+
+        public Pagination()
+        {
+
+        }
+
+        public Pagination(int pageIndex, int pageSize, int count, IReadOnlyList<T> data)
+        {
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            Count = count;
+            Data = data;
+        }
+    }
+}

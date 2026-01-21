@@ -1,8 +1,11 @@
 
+using Asp.Versioning;
 using Catalog.Application.Mappers;
 using Catalog.Application.Queries;
+using Catalog.Application.Sorting;
 using Catalog.CORE.Repositories;
 using Catalog.Infrastructure.Data;
+using Catalog.Infrastructure.Repositories;
 
 namespace Catalog.API
 {
@@ -15,27 +18,33 @@ namespace Catalog.API
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            // Add API Versioning
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.ReportApiVersions = true;
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Catalog.API", Version = "v1" }); });
 
-            /* Register AutoMapper
-             * 
-             * Scan the catalog.Application assembly, because that's where ProductMappingProfile is defined
-             * and automatically register all AutoMapper mapping profiles found there
-             * 
-             * This allows us to inject IMapper anywhere in the application and use
-             * predefinded mapping between domain entities and DTO
-             */
             builder.Services.AddAutoMapper(typeof(ProductMappingProfile).Assembly);
 
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(GetAllBrandsQuery).Assembly));
 
             builder.Services.AddScoped<ICatalogContext, CatalogContext>();
-            builder.Services.AddScoped<IProductRepository, IProductRepository>();
-            builder.Services.AddScoped<ITypeRepository, ITypeRepository>();
-            builder.Services.AddScoped<IBrandRepository, IBrandRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ITypeRepository, TypeRepository>();
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 
+            builder.Services.AddScoped<ISortStrategy, PriceAscSortStrategy>();
+            builder.Services.AddScoped<ISortStrategy, PriceDescSortStrategy>();
+            builder.Services.AddScoped<ISortStrategy, NameSortStrategy>();
+
+            builder.Services.AddScoped<ISortStrategyFactory, SortStrategyFactory>();
 
             var app = builder.Build();
 

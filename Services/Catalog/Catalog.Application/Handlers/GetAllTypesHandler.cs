@@ -18,7 +18,7 @@ namespace Catalog.Application.Handlers
             var typeList = await _typesRepository.GetAllTypes();
             var typeResponseList = ProductMapper.Mapper.Map<IList<TypeResponse>>(typeList);
 
-            return typeResponseList;
+            return typeResponseList; 
         }
     }
 }
