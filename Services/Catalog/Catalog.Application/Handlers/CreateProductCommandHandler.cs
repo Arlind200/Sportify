@@ -1,4 +1,5 @@
-﻿using Catalog.Application.Mappers;
+﻿using Catalog.Application.Commands;
+using Catalog.Application.Mappers;
 using Catalog.Application.Responses;
 using Catalog.CORE.Entities;
 using Catalog.CORE.Repositories;
@@ -6,7 +7,7 @@ using MediatR;
 
 namespace Catalog.Application.Handlers
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandHandler, ProductResponse>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductResponse>
     {
         private IProductRepository _productRepository;
         public CreateProductCommandHandler(IProductRepository productRepository)
@@ -14,7 +15,7 @@ namespace Catalog.Application.Handlers
             _productRepository = productRepository;
 
         }
-        public async Task<ProductResponse> Handle(CreateProductCommandHandler request, CancellationToken cancellationToken)
+        public async Task<ProductResponse> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var productEntity = ProductMapper.Mapper.Map<Product>(request);
 

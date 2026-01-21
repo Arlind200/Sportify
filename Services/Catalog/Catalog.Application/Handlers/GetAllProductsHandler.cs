@@ -2,11 +2,12 @@
 using Catalog.Application.Queries;
 using Catalog.Application.Responses;
 using Catalog.CORE.Repositories;
+using Catalog.CORE.Specs;
 using MediatR;
 
 namespace Catalog.Application.Handlers;
 
-public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, IList<ProductResponse>>
+public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, Pagination<ProductResponse>>
 {
     private readonly IProductRepository _productRepository;
 
@@ -15,10 +16,10 @@ public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, IList<
         _productRepository = productRepository;
     }
 
-    public async Task<IList<ProductResponse>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+    public async Task<Pagination<ProductResponse>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
         var productList = await _productRepository.GetAllProducts();
-        var productResponseList = ProductMapper.Mapper.Map<IList<ProductResponse>>(productList);
+        var productResponseList = ProductMapper.Mapper.Map<Pagination<ProductResponse>>(productList);
 
         return productResponseList;
     }
