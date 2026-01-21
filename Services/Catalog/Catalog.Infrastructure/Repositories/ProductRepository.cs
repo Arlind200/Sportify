@@ -4,7 +4,7 @@ using Catalog.CORE.Repositories;
 using Catalog.CORE.Specs;
 using Catalog.Infrastructure.Data;
 using MongoDB.Driver;
-using ZstdSharp.Unsafe;
+using MongoDB.Bson;
 
 namespace Catalog.Infrastructure.Repositories
 {
@@ -14,6 +14,9 @@ namespace Catalog.Infrastructure.Repositories
     {
         private readonly ICatalogContext _context;
         private readonly ISortStrategyFactory _sortStrategyFactory;
+
+        private static readonly Collation _caseInsensitiveCollation =
+            new("en", strength: CollationStrength.Secondary);
 
         public ProductRepository(ICatalogContext context, ISortStrategyFactory sortStrategyFactory)
         {
@@ -71,24 +74,23 @@ namespace Catalog.Infrastructure.Repositories
 
             if (!string.IsNullOrEmpty(catalogSpecParams.Search))
             {
-                filter = filter & builder.Where(p => p.Name.ToLower().Contains(catalogSpecParams.Search.ToLower()));
+                var re = new BsonRegularExpression(catalogSpecParams.Search, "i");
+                filter &= builder.Regex(p => p.Name, re);
             }
 
             if (!string.IsNullOrEmpty(catalogSpecParams.BrandId))
             {
-                var brandfilter = builder.Eq(p => p.Brand.Id, catalogSpecParams.BrandId);
-
-                filter &= brandfilter;
+                filter &= builder.Eq(P => P.Brand.Id, catalogSpecParams.BrandId);
             }
 
             if (!string.IsNullOrEmpty(catalogSpecParams.TypeId))
             {
-                var typeFilter = builder.Eq(p => p.Type.Id, catalogSpecParams.TypeId);
-
-                filter &= typeFilter;
+                filter &= builder.Eq(p => p.Type.Id, catalogSpecParams.TypeId);
             }
 
-            var totalItems = await _context.Products.CountDocumentsAsync(filter);
+            var countOptions = new CountOptions { Collation = _caseInsensitiveCollation };
+            var totalItems = await _context.Products.CountDocumentsAsync(filter, countOptions);
+
             var data = await DataFilter(catalogSpecParams, filter);
 
             return new Pagination<Product>
@@ -103,51 +105,54 @@ namespace Catalog.Infrastructure.Repositories
 
         private async Task<IReadOnlyList<Product>> DataFilter(CatalogSpecParams catalogSpecParams, FilterDefinition<Product> filter)
         {
-            var sortDefinition = Builders<Product>.Sort.Ascending("name"); //default
+            var sortBuilder = Builders<Product>.Sort;
+            
+            var strategy = _sortStrategyFactory.GetStrategy(catalogSpecParams.Sort ?? "name");
+            
+            var sortDefinition = strategy.ApplySort(sortBuilder);
 
-            if (!string.IsNullOrEmpty(catalogSpecParams.Sort))
+            var aggregateOptions = new AggregateOptions
             {
-                switch (catalogSpecParams.Sort)
-                {
-                    case "priceAsc":
-                        sortDefinition = Builders<Product>.Sort.Ascending(p => p.Price);
-                        break;
-                    case "priceDesc":
-                        sortDefinition = Builders<Product>.Sort.Descending(p => p.Price);
-                        break;
-                    default:
-                        sortDefinition = Builders<Product>.Sort.Ascending(p => p.Name);
-                        break;
-                }
+                Collation = _caseInsensitiveCollation
+            };
 
-
-            }
-
-            return await _context
-                .Products
-                .Find(filter)
+            var query = _context.Products
+                .Aggregate(aggregateOptions)
+                .Match(filter)
                 .Sort(sortDefinition)
                 .Skip(catalogSpecParams.PageSize * (catalogSpecParams.PageIndex - 1))
-                .Limit(catalogSpecParams.PageSize)
-                .ToListAsync();
+                .Limit(catalogSpecParams.PageSize);
 
+            return await query.ToListAsync();
 
         }
 
         public async Task<IEnumerable<Product>> GetProductsByBrand(string brandName)
         {
-            return await _context
-                .Products
-                .Find(p => p.Brand.Name.ToLower() == brandName.ToLower())
-                .ToListAsync();
+            var filter = Builders<Product>.Filter.Eq(p => p.Brand.Name, brandName);
+
+            var options = new FindOptions<Product>
+            {
+                Collation = _caseInsensitiveCollation
+            };
+
+            using var cursor = await _context.Products.FindAsync(filter, options);
+
+            return await cursor.ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetProductsByName(string name)
         {
-            return await _context
-                 .Products
-                 .Find(p => p.Name.ToLower() == name.ToLower())
-                 .ToListAsync();
+            var filter = Builders<Product>.Filter.Eq(p => p.Name, name);
+
+            var options = new FindOptions<Product>
+            {
+                Collation = _caseInsensitiveCollation
+            };
+
+            using var cursor = await _context.Products.FindAsync(filter, options);
+
+            return await cursor.ToListAsync();
         }
 
         public async Task<Product> GetProduct(string id)
